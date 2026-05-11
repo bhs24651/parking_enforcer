@@ -17,3 +17,11 @@ DATABASE = "parking.db"
 
 
 # main
+# (mostly just boilerplate database testing for now)
+db = sqlite3.connect(DATABASE)
+cursor = db.cursor()
+
+statement = "SELECT * FROM sessions;"
+cursor.execute(statement)
+results = cursor.fetchall()
+print(results)
