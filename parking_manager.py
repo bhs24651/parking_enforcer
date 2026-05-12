@@ -14,14 +14,19 @@ import sqlite3
 DATABASE = "parking.db"
 
 # functions
+def log_entry(plate, entry_time):
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
 
+    # executes the statement to insert a new session entry into the database
+    statement = f"INSERT INTO sessions (plate, entry_time) VALUES ('{plate}', '{entry_time}');"
+    cursor.execute(statement)
+
+    # tells the user when the command executes successfully
+    print(f"Added car '{plate}' with entry time {entry_time} to parking session list.")
 
 # main
-# (mostly just boilerplate database testing for now)
-db = sqlite3.connect(DATABASE)
-cursor = db.cursor()
 
-statement = "SELECT * FROM sessions;"
-cursor.execute(statement)
-results = cursor.fetchall()
-print(results)
+# testing
+log_entry("ABC123", "2026-01-01 12:00:00")
