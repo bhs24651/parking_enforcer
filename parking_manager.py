@@ -24,14 +24,30 @@ def log_entry(plate, entry_time):
     cursor.execute(statement)
 
     # tells the user when the command executes successfully
-    print(f"Added car '{plate}' with entry time {entry_time} to parking session list.")
+    print(f"Created session for '{plate}' with entry time {entry_time}.")
 
     # saves the new data and closes connection to the database
     db.commit()
     db.close()
 
+def log_exit(plate, exit_time):
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+
+    # executes the statement to update the current session's entry with an exit time
+    statement = f"UPDATE sessions SET exit_time = '{exit_time}' WHERE plate = '{plate}' AND exit_time IS NULL;"
+    cursor.execute(statement)
+
+    # tells the user when the command executes successfully
+    print(f"Updated session for '{plate}' with exit time {exit_time}.")
+
+    # saves the new data and closes connection to the database
+    db.commit()
+    db.close()
 
 # main
 
 # testing
 log_entry("ABC123", "2026-01-01 12:00:00")
+log_exit("ABC123", "2026-01-01 12:30:00")
