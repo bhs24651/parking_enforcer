@@ -26,6 +26,11 @@ def log_entry(plate, entry_time):
     # tells the user when the command executes successfully
     print(f"Added car '{plate}' with entry time {entry_time} to parking session list.")
 
+    # saves the new data and closes connection to the database
+    db.commit()
+    db.close()
+
+
 # main
 
 # testing
