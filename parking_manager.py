@@ -16,6 +16,9 @@ TIME_LIMIT = 60
 
 # functions
 def log_entry(plate, entry_time):
+    # docstring
+    'Creates a session in the parking session table with the vehicle\'s plate number and entry time, and exempts it from the time limit if applicable'
+
     # TODO: Add input sanitization to prevent breaking the software
 
     # connects to the database
@@ -38,6 +41,9 @@ def log_entry(plate, entry_time):
     db.close()
 
 def log_exit(plate, exit_time):
+    # docstring
+    'Updates the currently active session associated with the plate number with an exit time, and determines compliance with the parking time limit'
+
     # TODO: Add input sanitization to prevent breaking the software
 
     # connects to the database
@@ -61,6 +67,10 @@ def log_exit(plate, exit_time):
 
 # main
 
-# testing
+# testing with a session not in breach
 log_entry("ABC123", "2026-01-01 12:00:00")
-log_exit("ABC123", "2026-01-01 13:30:00")
+log_exit("ABC123", "2026-01-01 12:30:00")
+
+# testing with a session in breach
+log_entry("ABC124", "2026-01-01 12:00:00")
+log_exit("ABC124", "2026-01-01 13:30:00")
