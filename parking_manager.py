@@ -40,6 +40,26 @@ def log_entry(plate, entry_time):
     db.commit()
     db.close()
 
+
+def list_active():
+    # docstring
+    'Lists out all the currently active sessions (i.e. sessions with no exit time)'
+
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+
+    # executes the statement to pull all currently active sessions from the session table
+    statement = "SELECT id, plate, entry_time, is_exempted FROM sessions WHERE exit_time IS NULL;"
+    cursor.execute(statement)
+    # ... and stores it in a variable
+    results = cursor.fetchall()
+
+    # print the results as tuples for now (TODO: Add pretty printing)
+    for line in results:
+        print(line)
+
+
 def log_exit(plate, exit_time):
     # docstring
     'Updates the currently active session associated with the plate number with an exit time, and determines compliance with the parking time limit'
@@ -65,12 +85,39 @@ def log_exit(plate, exit_time):
     db.commit()
     db.close()
 
+
+def list_breaches():
+    # docstring
+    'Lists out all the sessions in breach of the parking limit and is marked unpaid'
+
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+
+    # executes the statement to pull all currently unpaid breaches
+    statement = "SELECT id, plate, entry_time, exit_time, breach_status FROM sessions WHERE breach_status = 'unpaid';"
+    cursor.execute(statement)
+    # ... and stores it in a variable
+    results = cursor.fetchall()
+
+    # prints the results as tuples for now (TODO: Add pretty printing)
+    for line in results:
+        print(line)
+
+
 # main
 
-# testing with a session not in breach
+# testing entry logging
 log_entry("ABC123", "2026-01-01 12:00:00")
-log_exit("ABC123", "2026-01-01 12:30:00")
-
-# testing with a session in breach
 log_entry("ABC124", "2026-01-01 12:00:00")
+
+# testing list active sessions function
+list_active()
+
+# testing exit logging with a session not in breach
+log_exit("ABC123", "2026-01-01 12:30:00")
+# testing exit logging with a session in breach
 log_exit("ABC124", "2026-01-01 13:30:00")
+
+# testing list unpaid breaches function
+list_breaches()
