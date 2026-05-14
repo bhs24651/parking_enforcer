@@ -58,6 +58,9 @@ def list_active():
     # print the results as tuples for now (TODO: Add pretty printing)
     for line in results:
         print(line)
+    
+    # closes connection to the database
+    db.close()
 
 
 def log_exit(plate, exit_time):
@@ -103,6 +106,29 @@ def list_breaches():
     # prints the results as tuples for now (TODO: Add pretty printing)
     for line in results:
         print(line)
+    
+    # closes connection to database
+    db.close()
+
+
+def pay_breach(id):
+    # docstring
+    'Marks a breach as paid by session ID'
+
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+
+    # executes the statement to mark a breach as paid by session ID
+    statement = f"UPDATE sessions SET breach_status = 'paid' WHERE id = {id};"
+    cursor.execute(statement)
+
+    # tells the user when the command executes successfully
+    print(f"Marked Breach ID {id} as Paid.")
+
+    # saves the new data and closes connection to the database
+    db.commit()
+    db.close()
 
 
 # main
@@ -121,3 +147,6 @@ log_exit("ABC124", "2026-01-01 13:30:00")
 
 # testing list unpaid breaches function
 list_breaches()
+
+# testing mark breach as paid function
+pay_breach(2)
