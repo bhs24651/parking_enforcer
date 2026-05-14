@@ -131,6 +131,88 @@ def pay_breach(id):
     db.close()
 
 
+def create_exemption(plate):
+    # docstring
+    'Creates an exemption by plate number to exempt future sessions by that plate number from the parking time limit'
+
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+    
+    # executes the statement to fetch all existing exemptions' plates
+    statement = "SELECT plate FROM exemptions;"
+    cursor.execute(statement)
+    # ... and stores it in a variable
+    results = cursor.fetchall()
+
+    if plate not in results:
+        # if the plate doesn't already exist in the exemptions list, execute the statement to create a new exemption with that plate
+        statement = f"INSERT INTO exemptions (plate) VALUES ({plate});"
+        cursor.execute(statement)
+
+        # tell the user when the command executes successfully
+        print(f"Created new exemption for '{plate}'.")
+    else:
+        # otherwise, tell the user that the command did not execute successfully
+        print(f"Error: Plate '{plate}' already exists in an exemption.")
+    
+    # saves the new data and closes connection to the database
+    db.commit()
+    db.close()
+
+
+def list_exemptions():
+    # docstring
+    'Lists out all the exemption entries'
+
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+
+    # executes the statement to pull all exemption entries
+    statement = "SELECT * FROM exemptions;"
+    cursor.execute(statement)
+    # ... and stores it in a variable
+    results = cursor.fetchall()
+
+    # prints the results as tuples for now (TODO: Add pretty printing)
+    for line in results:
+        print(line)
+    
+    # closes connection to database
+    db.close()
+
+
+def delete_exemption(plate):
+    # docstring
+    'Deletes an exemption by plate number'
+
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+
+    # executes the statement to fetch all existing exemptions' plates
+    statement = "SELECT plate FROM exemptions;"
+    cursor.execute(statement)
+    # ... and stores it in a variable
+    results = cursor.fetchall()
+
+    if plate in results:
+        # if the plate exists in the exemptions list, execute the statement to delete the exemption associated with that plate
+        statement = f"DELETE FROM exemptions WHERE plate = '{plate}';"
+        cursor.execute(statement)
+
+        # tell the user when the command executes successfully
+        print(f"Deleted exemption for '{plate}'.")
+    else:
+        # otherwise, tell the user that the command did not execute successfully
+        print(f"Error: Plate '{plate}' does not already exist in exemptions.")
+    
+    # saves the new data and closes connection to the database
+    db.commit()
+    db.close()
+
+
 # main
 
 # testing entry logging
