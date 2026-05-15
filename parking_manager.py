@@ -138,23 +138,13 @@ def create_exemption(plate):
     # connects to the database
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
-    
-    # executes the statement to fetch all existing exemptions' plates
-    statement = "SELECT plate FROM exemptions;"
+
+    # execute the statement to create a new exemption with that plate
+    statement = f"INSERT INTO exemptions (plate) VALUES ('{plate}');"
     cursor.execute(statement)
-    # ... and stores it in a variable
-    results = cursor.fetchall()
 
-    if plate not in results:
-        # if the plate doesn't already exist in the exemptions list, execute the statement to create a new exemption with that plate
-        statement = f"INSERT INTO exemptions (plate) VALUES ({plate});"
-        cursor.execute(statement)
-
-        # tell the user when the command executes successfully
-        print(f"Created new exemption for '{plate}'.")
-    else:
-        # otherwise, tell the user that the command did not execute successfully
-        print(f"Error: Plate '{plate}' already exists in an exemption.")
+    # tell the user when the command executes successfully
+    print(f"Created new exemption for '{plate}'.")
     
     # saves the new data and closes connection to the database
     db.commit()
@@ -191,22 +181,12 @@ def delete_exemption(plate):
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
 
-    # executes the statement to fetch all existing exemptions' plates
-    statement = "SELECT plate FROM exemptions;"
+    # execute the statement to delete the exemption associated with that plate
+    statement = f"DELETE FROM exemptions WHERE plate = '{plate}';"
     cursor.execute(statement)
-    # ... and stores it in a variable
-    results = cursor.fetchall()
 
-    if plate in results:
-        # if the plate exists in the exemptions list, execute the statement to delete the exemption associated with that plate
-        statement = f"DELETE FROM exemptions WHERE plate = '{plate}';"
-        cursor.execute(statement)
-
-        # tell the user when the command executes successfully
-        print(f"Deleted exemption for '{plate}'.")
-    else:
-        # otherwise, tell the user that the command did not execute successfully
-        print(f"Error: Plate '{plate}' does not already exist in exemptions.")
+    # tell the user when the command executes successfully
+    print(f"Deleted exemption for '{plate}'.")
     
     # saves the new data and closes connection to the database
     db.commit()
@@ -232,3 +212,8 @@ list_breaches()
 
 # testing mark breach as paid function
 pay_breach(2)
+
+# testing exemption handling functionality
+create_exemption("ABC123")
+list_exemptions()
+delete_exemption("ABC123")
