@@ -193,27 +193,53 @@ def delete_exemption(plate):
     db.close()
 
 
+def cleanup(days):
+    # docstring
+    'Cleans up non-breach and breach-paid parking sessions that are more than specified number of days old'
+
+    # connects to the database
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+
+    # execute the statement to clean up old parking records
+    statement = f"DELETE FROM sessions WHERE (unixepoch('now') - unixepoch(exit_time)) / 86400.0 > {days} AND (breach_status IS NULL OR breach_status = 'paid');"
+    cursor.execute(statement)
+
+    # tells the user when the command eecutes successfully
+    print(f"Cleaned up old records greater than {days} days old.")
+
+    # saves the new data and closes connection to the database
+    db.commit()
+    db.close()
+
+
 # main
 
-# testing entry logging
-log_entry("ABC123", "2026-01-01 12:00:00")
-log_entry("ABC124", "2026-01-01 12:00:00")
-
-# testing list active sessions function
-list_active()
-
-# testing exit logging with a session not in breach
-log_exit("ABC123", "2026-01-01 12:30:00")
-# testing exit logging with a session in breach
-log_exit("ABC124", "2026-01-01 13:30:00")
-
-# testing list unpaid breaches function
-list_breaches()
-
-# testing mark breach as paid function
-pay_breach(2)
-
-# testing exemption handling functionality
-create_exemption("ABC123")
-list_exemptions()
-delete_exemption("ABC123")
+print("Welcome to Parking Enforcer v1.0!")
+print("Type 'h' for a list of commands.")
+# command input logic
+while True:
+    command = input("parking_enforcer> ").split()
+    if command[0] == "h":
+        print("\n"\
+              "LIST OF AVAILABLE COMMANDS:\n"\
+              "    n <plate> <ISO8601_entry_timestring> : Insert entry into parking sessions with given entry time\n"\
+              "    a : List currently active sessions (sessions with no exit time)\n"\
+              "    x <plate> <ISO8601_exit_timestring> : Update vehicle's session entry with exit time\n"\
+              "    b : List currently unpaid breaches\n"\
+              "    p <session_id> : Mark breach as paid by session ID\n"\
+              "    ec <plate> : Create exemption entry\n"\
+              "    el : List all exemption entries\n"\
+              "    ed <plate> : Delete exemption entry for plate number\n"\
+              "    c <days> : Cleans up old non-breach and breach-paid parking sessions that are more than specified number of days old\n"\
+              "    tl <time_limit_minutes> : Update the time limit to specified number of minutes\n"\
+              "    h : Show this help message\n"\
+              "    q : Quit this program\n"\
+              )
+    elif command[0] == "q":
+        # command to quit the program
+        print("See you next time...")
+        break
+    else:
+        # command not found
+        print("Unrecognized command. Type 'h' for a list of commands.")
