@@ -9,10 +9,12 @@ Copyright (c) 2026 Jason Wu. All rights reserved.
 
 # imports
 import sqlite3
+import datetime
 
 # constants and variables
 DATABASE = "parking.db"
 TIME_LIMIT = 60
+MAX_PLATE_LENGTH = 8
 
 # functions
 def log_entry(plate, entry_time):
@@ -223,9 +225,9 @@ while True:
     if command[0] == "h":
         print("\n"\
               "LIST OF AVAILABLE COMMANDS:\n"\
-              "    n <plate> <ISO8601_entry_timestring> : Insert entry into parking sessions with given entry time\n"\
+              "    n <plate> <ISO8601_entry_timestring*> : Insert entry into parking sessions with given entry time\n"\
               "    a : List currently active sessions (sessions with no exit time)\n"\
-              "    x <plate> <ISO8601_exit_timestring> : Update vehicle's session entry with exit time\n"\
+              "    x <plate> <ISO8601_exit_timestring*> : Update vehicle's session entry with exit time\n"\
               "    b : List currently unpaid breaches\n"\
               "    p <session_id> : Mark breach as paid by session ID\n"\
               "    ec <plate> : Create exemption entry\n"\
@@ -235,11 +237,33 @@ while True:
               "    tl <time_limit_minutes> : Update the time limit to specified number of minutes\n"\
               "    h : Show this help message\n"\
               "    q : Quit this program\n"\
+              "\n"\
+              "*Note on ISO8601 timestrings: They are to be in the format \"yyyy-mm-ddThh:mm:ss\", where lowercase letters are to be replaced with the appropriate numbers.\n"
               )
     elif command[0] == "q":
         # command to quit the program
         print("See you next time...")
         break
+    elif command[0] == "n":
+        # try:
+            # parse the 'n' command
+            plate = command[1].upper()
+            entry_time = command[2]
+            
+            # reject plates with symbols or plates that are excessively long
+            if not plate.isalnum() or len(plate) > MAX_PLATE_LENGTH:
+                print("Error: Plate either contains symbols or is excessively long. Remove unnecessary characters from plate and try again.")
+            
+            # validates the timestring
+            entry_time_object = datetime.datetime.fromisoformat(entry_time)
+            parsed_timestamp = entry_time_object.timestamp() # should fail if timestring is invalid
+
+            # if all checks passed, run log_entry
+            log_entry(plate, entry_time)
+        # except:
+            # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
+            # print("Invalid command syntax. See 'h' for usage details.")
+    # add more commands here...
     else:
         # command not found
         print("Unrecognized command. Type 'h' for a list of commands.")
