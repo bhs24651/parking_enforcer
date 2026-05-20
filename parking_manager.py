@@ -253,6 +253,7 @@ while True:
             # reject plates with symbols or plates that are excessively long
             if not plate.isalnum() or len(plate) > MAX_PLATE_LENGTH:
                 print("Error: Plate either contains symbols or is excessively long. Remove unnecessary characters from plate and try again.")
+                continue
             
             # validates the timestring
             entry_time_object = datetime.datetime.fromisoformat(entry_time)
