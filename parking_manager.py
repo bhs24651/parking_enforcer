@@ -245,7 +245,7 @@ while True:
         print("See you next time...")
         break
     elif command[0] == "n":
-        # try:
+        try:
             # parse the 'n' command
             plate = command[1].upper()
             entry_time = command[2]
@@ -260,9 +260,9 @@ while True:
 
             # if all checks passed, run log_entry
             log_entry(plate, entry_time)
-        # except:
+        except:
             # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
-            # print("Invalid command syntax. See 'h' for usage details.")
+            print("Invalid command syntax. See 'h' for usage details.")
     # add more commands here...
     else:
         # command not found
