@@ -21,11 +21,18 @@ def log_entry(plate, entry_time):
     # docstring
     'Creates a session in the parking session table with the vehicle\'s plate number and entry time, and exempts it from the time limit if applicable'
 
-    # TODO: Add input sanitization to prevent breaking the software
-
     # connects to the database
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
+
+    # only execute the below statements if the plate does not already exist in an active session
+    statement = "SELECT plate FROM sessions WHERE exit_time IS NULL;"
+    cursor.execute(statement)
+    results = cursor.fetchall()
+    active_plates = list(result[0] for result in results)
+    if plate in active_plates:
+        print(f"Error: Plate '{plate}' already exists in an active session.")
+        return
 
     # executes the statement to insert a new session entry into the database
     statement = f"INSERT INTO sessions (plate, entry_time) VALUES ('{plate}', '{entry_time}');"
@@ -69,11 +76,18 @@ def log_exit(plate, exit_time):
     # docstring
     'Updates the currently active session associated with the plate number with an exit time, and determines compliance with the parking time limit'
 
-    # TODO: Add input sanitization to prevent breaking the software
-
     # connects to the database
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
+
+    # only execute the below statements if the plate already exists in an active session
+    statement = "SELECT plate FROM sessions WHERE exit_time IS NULL;"
+    cursor.execute(statement)
+    results = cursor.fetchall()
+    active_plates = list(result[0] for result in results)
+    if plate not in active_plates:
+        print(f"Error: Plate '{plate}' does not already exist in an active session.")
+        return
 
     # executes the statement to update the current session's entry with an exit time
     statement = f"UPDATE sessions SET exit_time = '{exit_time}' WHERE plate = '{plate}' AND exit_time IS NULL;"
@@ -120,6 +134,15 @@ def pay_breach(id):
     # connects to the database
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
+
+    # only execute the below statements if the ID already exists in a currently unpaid breach
+    statement = "SELECT id FROM sessions WHERE breach_status = 'unpaid';"
+    cursor.execute(statement)
+    results = cursor.fetchall()
+    unpaid_breaches = list(int(result[0]) for result in results)
+    if id not in unpaid_breaches:
+        print(f"Error: No Breach with ID {id} found to mark Paid.")
+        return
 
     # executes the statement to mark a breach as paid by session ID
     statement = f"UPDATE sessions SET breach_status = 'paid' WHERE id = {id};"
@@ -264,6 +287,43 @@ while True:
         except:
             # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
             print("Invalid command syntax. See 'h' for usage details.")
+    elif command[0] == "a":
+        # run list_active to fetch all active session data 
+        list_active()
+    elif command[0] == "x":
+        try:
+            # parse the 'x' command
+            plate = command[1].upper()
+            exit_time = command[2]
+            
+            # reject plates with symbols or plates that are excessively long
+            if not plate.isalnum() or len(plate) > MAX_PLATE_LENGTH:
+                print("Error: Plate either contains symbols or is excessively long. Remove unnecessary characters from plate and try again.")
+                continue
+            
+            # validates the timestring
+            exit_time_object = datetime.datetime.fromisoformat(exit_time)
+            parsed_timestamp = exit_time_object.timestamp() # should fail if timestring is invalid
+
+            # if all checks passed, run log_exit
+            log_exit(plate, exit_time)
+        except:
+            # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
+            print("Invalid command syntax. See 'h' for usage details.")
+    elif command[0] == "b":
+        # run list_active to fetch all unpaid breach data 
+        list_breaches()
+    elif command[0] == "p":
+        try:
+            # parse the 'p' command
+            id = int(command[1])
+
+            # if parsing passed, run pay_breach
+            pay_breach(id)
+        except:
+            # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
+            print("Invalid command syntax. See 'h' for usage details.")
+        
     # add more commands here...
     else:
         # command not found
