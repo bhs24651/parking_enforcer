@@ -164,6 +164,15 @@ def create_exemption(plate):
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
 
+    # only execute the below statements if the plate does not already exist in the exemptions table
+    statement = "SELECT plate FROM exemptions;"
+    cursor.execute(statement)
+    results = cursor.fetchall()
+    exempted_plates = list(result[0] for result in results)
+    if plate in exempted_plates:
+        print(f"Error: An exemption for '{plate}' already exists.")
+        return
+
     # execute the statement to create a new exemption with that plate
     statement = f"INSERT INTO exemptions (plate) VALUES ('{plate}');"
     cursor.execute(statement)
@@ -205,6 +214,15 @@ def delete_exemption(plate):
     # connects to the database
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
+
+    # only execute the below statements if the plate already exists in the exemptions table
+    statement = "SELECT plate FROM exemptions;"
+    cursor.execute(statement)
+    results = cursor.fetchall()
+    exempted_plates = list(result[0] for result in results)
+    if plate not in exempted_plates:
+        print(f"Error: No exemption for '{plate}' found to delete.")
+        return
 
     # execute the statement to delete the exemption associated with that plate
     statement = f"DELETE FROM exemptions WHERE plate = '{plate}';"
@@ -323,7 +341,40 @@ while True:
         except:
             # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
             print("Invalid command syntax. See 'h' for usage details.")
-        
+    elif command[0] == "ec":
+        try:
+            # parse the 'ec' command
+            plate = command[1].upper()
+            
+            # reject plates with symbols or plates that are excessively long
+            if not plate.isalnum() or len(plate) > MAX_PLATE_LENGTH:
+                print("Error: Plate either contains symbols or is excessively long. Remove unnecessary characters from plate and try again.")
+                continue
+
+            # if all checks passed, run create_exemption
+            create_exemption(plate)
+        except:
+            # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
+            print("Invalid command syntax. See 'h' for usage details.")
+    elif command[0] == "el":
+        # run list_exemptions to fetch all currently active exemptions
+        list_exemptions()
+    elif command[0] == "ed":
+        try:
+            # parse the 'ed' command
+            plate = command[1].upper()
+            
+            # reject plates with symbols or plates that are excessively long
+            if not plate.isalnum() or len(plate) > MAX_PLATE_LENGTH:
+                print("Error: Plate either contains symbols or is excessively long. Remove unnecessary characters from plate and try again.")
+                continue
+
+            # if all checks passed, run create_exemption
+            delete_exemption(plate)
+        except:
+            # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
+            print("Invalid command syntax. See 'h' for usage details.")
+
     # add more commands here...
     else:
         # command not found
