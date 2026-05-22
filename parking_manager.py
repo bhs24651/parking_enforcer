@@ -374,7 +374,16 @@ while True:
         except:
             # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
             print("Invalid command syntax. See 'h' for usage details.")
+    elif command[0] == "c":
+        try:
+            # parse the 'c' command
+            days = int(command[1])
 
+            # if parsing passed, run cleanup
+            cleanup(days)
+        except:
+            # if something goes wrong with syntax parsing (invalid arguments or invalid timestring)...
+            print("Invalid command syntax. See 'h' for usage details.")
     # add more commands here...
     else:
         # command not found
